@@ -66,6 +66,7 @@ def get_project(projects):
                         break
                 elif choice == '2':
                     clear_terminal()
+                    print("Enter new project:")
                     project = input('> ').strip()
                     if project.lower() == 'q':
                         return None
@@ -104,7 +105,9 @@ def get_date():
 
             if choice == '1':
                 date = datetime.date.today()
+                print(f"> {date}")
             elif choice == '2':
+                print("Enter a date (YYYY-MM-DD):")
                 user_input = input('> ').strip()
                 if user_input.lower() == 'q':
                     return None
@@ -221,7 +224,7 @@ def log_hours():
         confirm = ask_yes_no("Save this entry? (y/n): ")
         if confirm == 'y':
             write_file([timestamp, project, date, hours, category, description])
-            break
+            return
         elif confirm == 'n':
             print('🔁 Resetting entry...')
 
@@ -265,6 +268,7 @@ def show_summary():
         print(f"{project}: {total_hours:.2f} hours")
     print()
     input("Press Enter to return to main menu...")
+    return
 
 def edit_entry():
     clear_terminal()
@@ -305,6 +309,7 @@ def edit_entry():
     updated_project = get_project(projects) or entry['Project']
     updated_date = get_date() or entry['Date']
     updated_hours = get_hours() or float(entry['Hours'])
+    updated_category = get_category() or entry['Category']
     updated_description = get_description() or entry['Description']
 
     confirm = ask_yes_no("Save these changes? (y/n): ")
@@ -319,16 +324,71 @@ def edit_entry():
         "Project": updated_project,
         "Date": updated_date,
         "Hours": str(updated_hours),
+        "Category": updated_category,
         "Description": updated_description
     }
 
     # Rewrite CSV with updated entry list
     with open(LOG_FILE, 'w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=["Timestamp", "Project", "Date", "Hours", "Description"])
+        writer = csv.DictWriter(file, fieldnames=["Timestamp", "Project", "Date", "Hours", "Category", "Description"])
         writer.writeheader()
         writer.writerows(entries)
 
     print("✅ Entry updated successfully.")
+    input("Press Enter to return to main menu...")
+    return
+
+def delete_entry():
+    clear_terminal()
+    print("🗑️  Delete an Entry\n")
+
+    # Load all entries
+    with open(LOG_FILE, 'r', newline='') as file:
+        reader = csv.DictReader(file)
+        entries = list(reader)
+
+    if not entries:
+        print("⚠️ No entries found to delete.")
+        input("Press Enter to return to main menu...")
+        return
+
+    # Build list of entry labels
+    entry_labels = [
+        f"{i+1}. {row['Date']} | {row['Project']} | {row['Hours']}h | {row['Category']} | {row['Description'][:30]}..."
+        for i, row in enumerate(entries)
+    ]
+
+    # User selects an entry
+    selected_label = inquirer.select(
+        message="Select an entry to delete:",
+        choices=entry_labels,
+    ).execute()
+
+    selected_index = entry_labels.index(selected_label)
+    entry = entries[selected_index]
+
+    clear_terminal()
+    print("⚠️ Confirm Deletion")
+    print(f"Project: {entry['Project']}")
+    print(f"Date: {entry['Date']}")
+    print(f"Hours: {entry['Hours']}")
+    print(f"Category: {entry['Category']}")
+    print(f"Description: {entry['Description']}\n")
+
+    confirm = ask_yes_no("Are you sure you want to delete this entry? (y/n): ")
+    if confirm != 'y':
+        print("❌ Deletion canceled.")
+        input("Press Enter to return to main menu...")
+        return
+
+    # Remove the entry and rewrite file
+    del entries[selected_index]
+    with open(LOG_FILE, 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=["Timestamp", "Project", "Date", "Hours", "Category", "Description"])
+        writer.writeheader()
+        writer.writerows(entries)
+
+    print("✅ Entry deleted successfully.")
     input("Press Enter to return to main menu...")
 
 def view_entries():
@@ -350,30 +410,34 @@ def view_entries():
 
 def main():
     ensure_log_file_exists()
-    choice = ''
-    while choice not in ['1', '2', '3', '4', 'q']:
+    while True:
         clear_terminal()
         print("Choose an option:")
         print("1. Log hours")
         print("2. View summary")
-        print("3. Edit entry")
-        print("4. View entries")
+        print("3. View entries")
+        print("4. Edit entry")
+        print("5. Delete entry")
+        print("q. Quit")
         choice = input("> ").strip()
+
         if choice == '1':
-            print()
             log_hours()
         elif choice == '2':
-            print()
             show_summary()
         elif choice == '3':
-            print()
-            edit_entry()
-        elif choice == '4':
             view_entries()
+        elif choice == '4':
+            edit_entry()
+        elif choice == '5':
+            delete_entry()
         elif choice == 'q':
-            print('Exiting program')
-            input('Press enter to close...')
-            return
+            print()
+            input("Press Enter to close...")
+            break
+        else:
+            print("⚠️ Invalid option. Try again.")
+            input("Press Enter...")
 
 
 
