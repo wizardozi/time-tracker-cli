@@ -81,4 +81,4 @@ tracker
 
 ---
 
-Let me know if you want to add support for a `--help` flag or command-line arguments down the line!
+Let me know if you want to add support for a `--help` flag or command-line arguments down the line.
