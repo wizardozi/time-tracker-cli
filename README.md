@@ -61,23 +61,23 @@ tracker
 
 ### Inside the app:
 
-    •	Navigate menus using arrow keys
-    •	Press q at any prompt to cancel or return
-    •	All data is saved to work_log.csv in the project folder (not committed to Git)
+• Navigate menus using arrow keys
+• Press q at any prompt to cancel or return
+• All data is saved to work_log.csv in the project folder (not committed to Git)
 
 ### Notes
 
-    •	You can categorize entries (e.g., Personal, Client, Freelance)
-    •	Easily extendable with filters, exports, time-based summaries, or SQLite
-    •	Designed for minimalism and utility — a clean daily-use CLI
+• You can categorize entries (e.g., Personal, Client, Freelance)
+• Easily extendable with filters, exports, time-based summaries, or SQLite
+• Designed for minimalism and utility — a clean daily-use CLI
 
 ### Future Ideas (Optional Extensions)
 
-    •	--help flag with CLI argument support
-    •	Weekly/monthly summary views
-    •	Tagging and search
-    •	CSV export filters or markdown reports
-    •	Live timer mode (start / stop log)
+• --help flag with CLI argument support
+• Weekly/monthly summary views
+• Tagging and search
+• CSV export filters or markdown reports
+• Live timer mode (start / stop log)
 
 ---
 
