@@ -1,0 +1,10 @@
+# Ignore virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Ignore personal logs
+work_log.csv
+
+# macOS system files
+.DS_Store
