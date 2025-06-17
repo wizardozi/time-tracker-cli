@@ -6,6 +6,8 @@ import os
 from InquirerPy import inquirer
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 LOG_FILE = os.path.join(SCRIPT_DIR, 'work_log.csv')
+
+
 def ensure_log_file_exists():
     if not os.path.isfile(LOG_FILE) or os.stat(LOG_FILE).st_size == 0:
         with open(LOG_FILE, 'w', newline='') as file:
@@ -14,12 +16,14 @@ def ensure_log_file_exists():
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+
 def ask_yes_no(prompt="Confirm (y/n): "):
     while True:
         choice = input(prompt).strip().lower()
         if choice in ['y', 'n']:
             return choice
         print("Please enter 'y' or 'n'.")
+
 
 def get_projects():
     projects = set()
@@ -32,12 +36,14 @@ def get_projects():
 
 from InquirerPy import inquirer
 
+
 def select_project(projects):
     return inquirer.select(
         message="Select a project:",
         choices=sorted(projects),
         default=None,
     ).execute()
+
 
 def get_project(projects):
     project = ''
@@ -87,7 +93,6 @@ def get_project(projects):
             confirm = ask_yes_no()
             if confirm == 'y':
                 return project
-
 
 
 def get_date():
@@ -179,6 +184,7 @@ def get_description():
         if confirm == 'y':
             return description
 
+
 def log_hours():
     while True:
         clear_terminal()
@@ -228,6 +234,7 @@ def log_hours():
         elif confirm == 'n':
             print('🔁 Resetting entry...')
 
+
 def write_file(new_entry):
 
     filename = LOG_FILE
@@ -243,6 +250,7 @@ def write_file(new_entry):
         writer.writerow(new_entry)
 
     print("✅ Entry saved.")
+
 
 def show_summary():
     clear_terminal()
@@ -269,6 +277,7 @@ def show_summary():
     print()
     input("Press Enter to return to main menu...")
     return
+
 
 def edit_entry():
     clear_terminal()
@@ -338,6 +347,7 @@ def edit_entry():
     input("Press Enter to return to main menu...")
     return
 
+
 def delete_entry():
     clear_terminal()
     print("🗑️  Delete an Entry\n")
@@ -391,6 +401,7 @@ def delete_entry():
     print("✅ Entry deleted successfully.")
     input("Press Enter to return to main menu...")
 
+
 def view_entries():
     clear_terminal()
     print("📋 All Logged Entries:\n")
@@ -407,6 +418,7 @@ def view_entries():
             print(f"   {row['Description']}\n")
 
     input("Press Enter to return to main menu...")
+
 
 def main():
     ensure_log_file_exists()
