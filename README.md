@@ -5,6 +5,7 @@ A lightweight command-line tool for logging and summarizing work hours across pe
 ## ✨ Features
 
 - Log time with description, project, hours, date, and category
+- Live timer linked to project (timer displayed in MacOs menu bar)
 - CSV-based logging (easy to inspect, edit, or back up)
 - Inquirer-powered interactive CLI (arrow keys, cancel with `q`)
 - Edit existing entries
@@ -77,7 +78,6 @@ tracker
 - Weekly/monthly summary views
 - Tagging and search
 - CSV export filters or markdown reports
-- Live timer mode (`start` / `stop` log)
 
 ---
 
