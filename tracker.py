@@ -2,39 +2,15 @@
 # App built to track my hours worked
 import csv
 import datetime
-import os
 from InquirerPy import inquirer
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
-LOG_FILE = os.path.join(SCRIPT_DIR, 'work_log.csv')
+from log import write_file, get_projects, ensure_log_file_exists
+from utils import clear_terminal, ask_yes_no
+from config import LOG_FILE, TIMER_FILE
+import subprocess
+import sys
 
-
-def ensure_log_file_exists():
-    if not os.path.isfile(LOG_FILE) or os.stat(LOG_FILE).st_size == 0:
-        with open(LOG_FILE, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Timestamp', 'Project', 'Date', 'Hours', 'Category', 'Description'])
-def clear_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
-
-def ask_yes_no(prompt="Confirm (y/n): "):
-    while True:
-        choice = input(prompt).strip().lower()
-        if choice in ['y', 'n']:
-            return choice
-        print("Please enter 'y' or 'n'.")
-
-
-def get_projects():
-    projects = set()
-    with open(LOG_FILE, 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row.get("Project"):  # Only collect non-empty project names
-                projects.add(row["Project"])
-    return projects
-
-from InquirerPy import inquirer
+def launch_timer(project):
+    subprocess.Popen([sys.executable, TIMER_FILE, project])
 
 
 def select_project(projects):
@@ -142,8 +118,8 @@ def get_hours():
             if user_input == '':
                 raise ValueError("No input")
             hours = float(user_input)
-            if hours < 0.25:
-                print('⚠️ Time entered must be 0.25 hours or more.')
+            if hours <= 0:
+                print('⚠️ Time must be greater than 0.')
                 input("Press Enter to try again...")
                 continue
         except ValueError:
@@ -235,21 +211,7 @@ def log_hours():
             print('🔁 Resetting entry...')
 
 
-def write_file(new_entry):
 
-    filename = LOG_FILE
-
-    file_exists = os.path.isfile(filename)
-
-    with open(filename, 'a', newline='') as file:
-        writer = csv.writer(file)
-
-        if not file_exists or os.stat(filename).st_size == 0:
-            writer.writerow(['Timestamp', 'Project', 'Date', 'Hours', 'Category', 'Description'])
-
-        writer.writerow(new_entry)
-
-    print("✅ Entry saved.")
 
 
 def show_summary():
@@ -426,22 +388,30 @@ def main():
         clear_terminal()
         print("Choose an option:")
         print("1. Log hours")
-        print("2. View summary")
-        print("3. View entries")
-        print("4. Edit entry")
-        print("5. Delete entry")
+        print("2. Launch timer")
+        print("3. View summary")
+        print("4. View entries")
+        print("5. Edit entry")
+        print("6. Delete entry")
         print("q. Quit")
         choice = input("> ").strip()
 
         if choice == '1':
-            log_hours()
+            log_hours ()
         elif choice == '2':
-            show_summary()
+            projects = get_projects()
+            selected_project = get_project(projects)
+            if selected_project:
+                launch_timer(selected_project)
+            else:
+                launch_timer("Default")
         elif choice == '3':
-            view_entries()
+            show_summary()
         elif choice == '4':
-            edit_entry()
+            view_entries()
         elif choice == '5':
+            edit_entry()
+        elif choice == '6':
             delete_entry()
         elif choice == 'q':
             print()
