@@ -28,7 +28,7 @@ cd time-tracker-cli
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install InquirerPy
+pip install InquirerPy rumps pyobjc
 ```
 
 ### 3. (Optional) Create a symlink to run tracker from anywhere:
