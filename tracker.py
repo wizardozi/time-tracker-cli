@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 def launch_timer(project):
-    subprocess.Popen([sys.executable, TIMER_FILE, project])
+    subprocess.Popen([sys.executable, TIMER_FILE, project], stdin=subprocess.DEVNULL)
 
 
 def select_project(projects):
@@ -19,6 +19,21 @@ def select_project(projects):
         choices=sorted(projects),
         default=None,
     ).execute()
+
+
+def get_project_category_map(log_file=LOG_FILE):
+    mapping =  {}
+    try:
+        with open(log_file, newline='') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                project = row.get("Project")
+                category = row.get("Category")
+                if project and category and project not in mapping:
+                    mapping[project] = category
+    except FileNotFoundError:
+        pass
+    return mapping
 
 
 def get_project(projects):
@@ -133,7 +148,7 @@ def get_hours():
 
 
 def get_category():
-    categories = ["Personal", "Client", "Freelance", "Admin", "Learning", "Other"]
+    categories = ["Personal","Creative", "Music", "Client", "Freelance", "Learning", "Other"]
 
     category = inquirer.select(
         message="Select a category for this work:",
@@ -184,11 +199,16 @@ def log_hours():
             print("❌ Entry canceled at hours step.")
             input("Press Enter to return to main menu...")
             return
-        category = get_category()
-        if category is None:
-            print("❌ Entry canceled at category step.")
-            input("Press Enter to return to main menu...")
-            return
+
+        project_category_map = get_project_category_map()
+        category = project_category_map.get(project)
+
+        if not category:
+            category = get_category()
+            if category is None:
+                print("❌ Entry canceled at category step.")
+                input("Press Enter to return to main menu...")
+                return
 
         description = get_description()
         if description is None:

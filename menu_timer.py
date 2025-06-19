@@ -2,6 +2,10 @@ import rumps
 import sys
 from datetime import datetime
 from datetime import timedelta
+from AppKit import NSApplication
+from log import write_file
+from tracker import get_project_category_map, get_category, get_description
+NSApplication.sharedApplication().setActivationPolicy_(2)
 
 class TrackerTimerApp(rumps.App):
     def __init__(self, project):
@@ -40,10 +44,22 @@ class TrackerTimerApp(rumps.App):
 
     @rumps.clicked('Save')
     def save_time(self, _):
+        self.timer_running = False
+        self.update_timer.stop()
         self.total_elapsed += datetime.now() - self.last_started
         hours = round(self.total_elapsed.total_seconds() / 3600, 2)
-        rumps.alert(title="Timer Stopped", message=f"Logged {hours} hours to {self.project}")
-        # TODO: Save to CSV here
+        self.total_elapsed = timedelta(0)
+        self.title = f"{hours} hours saved to {self.project}"
+        self.menu["Stop"].title = "Start"
+        self.save_to_csv(hours)
+
+    def save_to_csv(self, hours):
+        timestamp = datetime.now().isoformat()
+        date = datetime.today().date()
+        project_category_map = get_project_category_map()
+        category = project_category_map.get(self.project, "Uncategorized")  # ✅ fallback
+        description = "No description"  # ✅ safe default
+        write_file([timestamp, self.project, date, hours, category, description])
 
     def update_title(self, _):
         elapsed = self.total_elapsed
