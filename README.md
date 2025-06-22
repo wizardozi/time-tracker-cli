@@ -25,13 +25,13 @@ cd time-tracker-cli
 
 ### 2. Create a virtual environment and install dependencies
 
+This app uses rumps, InquirerPy, and pyobjc. Install them globally for your user:
+
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install InquirerPy rumps pyobjc
+pip3 install --user rumps InquirerPy pyobjc
 ```
 
-### 3. (Optional) Create a symlink to run tracker from anywhere:
+### 3. Make the script executable and link it globally
 
 ```bash
 chmod +x tracker.py
@@ -40,7 +40,7 @@ ln -s $(pwd)/tracker.py ~/bin/tracker
 
 ### 4. Add ~/bin to your system $PATH (if not already)
 
-In your shell config file (~/.zshrc, ~/.bashrc, or ~/.bash_profile), add:
+In your shell config (~/.zshrc, ~/.bashrc, or ~/.bash_profile), add:
 
 ```bash
 export PATH="$HOME/bin:$PATH"

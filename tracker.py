@@ -1,4 +1,4 @@
-#!/Users/alexandredenommee/Workspace/Coding/Projects/time-tracker-app/venv/bin/python
+#!/usr/bin/env python3
 # App built to track my hours worked
 import csv
 import datetime
