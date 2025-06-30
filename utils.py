@@ -49,3 +49,5 @@ def prompt_estimate_rounded():
     except ValueError:
         click.echo("Invalid time format. Try something like 1.5, 90m, or 1:15")
         return prompt_estimate_rounded()
+
+
