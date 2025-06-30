@@ -4,10 +4,11 @@ import csv
 import datetime
 from InquirerPy import inquirer
 from log import write_file, get_projects, ensure_log_file_exists
-from utils import clear_terminal, ask_yes_no
+from utils import clear_terminal, ask_yes_no, parse_time_estimate
 from config import LOG_FILE, TIMER_FILE
 import subprocess
 import sys
+import click
 
 def launch_timer(project):
     subprocess.Popen([sys.executable, TIMER_FILE, project], stdin=subprocess.DEVNULL)
@@ -129,19 +130,12 @@ def get_hours():
         user_input = input('> ').strip().lower()
         if user_input == 'q':
             return None
-        try:
-            if user_input == '':
-                raise ValueError("No input")
-            hours = float(user_input)
-            if hours <= 0:
-                print('⚠️ Time must be greater than 0.')
-                input("Press Enter to try again...")
-                continue
-        except ValueError:
-            print('⚠️ Please enter a valid number (e.g. 1.5)')
+        hours = parse_time_estimate(user_input)
+        if hours is None or hours <= 0:
+            print('⚠️ Please enter a valid time (e.g. 1.5, 30m, 1h).')
             input("Press Enter to try again...")
             continue
-
+        click.echo(hours)
         confirm = ask_yes_no()
         if confirm == 'y':
             return hours
@@ -402,46 +396,49 @@ def view_entries():
     input("Press Enter to return to main menu...")
 
 
-def main():
+
+# --- Click CLI group and subcommands ---
+
+@click.group()
+def cli():
+    """Time Tracker CLI"""
     ensure_log_file_exists()
-    while True:
-        clear_terminal()
-        print("Choose an option:")
-        print("1. Log hours")
-        print("2. Launch timer")
-        print("3. View summary")
-        print("4. View entries")
-        print("5. Edit entry")
-        print("6. Delete entry")
-        print("q. Quit")
-        choice = input("> ").strip()
 
-        if choice == '1':
-            log_hours ()
-        elif choice == '2':
-            projects = get_projects()
-            selected_project = get_project(projects)
-            if selected_project:
-                launch_timer(selected_project)
-            else:
-                launch_timer("Default")
-        elif choice == '3':
-            show_summary()
-        elif choice == '4':
-            view_entries()
-        elif choice == '5':
-            edit_entry()
-        elif choice == '6':
-            delete_entry()
-        elif choice == 'q':
-            print()
-            input("Press Enter to close...")
-            break
-        else:
-            print("⚠️ Invalid option. Try again.")
-            input("Press Enter...")
+@cli.command()
+def log():
+    """Log hours manually"""
+    log_hours()
 
+@cli.command()
+def timer():
+    """Launch timer for a selected project"""
+    projects = get_projects()
+    selected_project = get_project(projects)
+    if selected_project:
+        launch_timer(selected_project)
+    else:
+        launch_timer("Default")
+
+@cli.command()
+def summary():
+    """Show project summary"""
+    show_summary()
+
+@cli.command()
+def view():
+    """View all entries"""
+    view_entries()
+
+@cli.command()
+def edit():
+    """Edit an entry"""
+    edit_entry()
+
+@cli.command()
+def delete():
+    """Delete an entry"""
+    delete_entry()
 
 
 if __name__ == "__main__":
-    main()
+    cli()
