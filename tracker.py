@@ -227,8 +227,7 @@ def log_hours():
 
 
 
-
-def show_summary():
+def show_summary(day, week, month, range):
     clear_terminal()
     summary_dict = {}
 
@@ -378,9 +377,9 @@ def delete_entry():
     input("Press Enter to return to main menu...")
 
 
-def view_entries():
+def view_entries(day=False, week=False, month=False, date_range=None):
     clear_terminal()
-    print("📋 All Logged Entries:\n")
+    print("📋 Logged Entries:\n")
 
     with open(LOG_FILE, 'r') as file:
         reader = csv.DictReader(file)
@@ -388,8 +387,37 @@ def view_entries():
 
     if not entries:
         print("⚠️ No entries found.")
+        input("Press Enter to return to main menu...")
+        return
+
+    today = datetime.date.today()
+    filtered = []
+    for row in entries:
+        entry_date = datetime.datetime.strptime(row['Date'], "%Y-%m-%d").date()
+
+        if day and entry_date != today:
+            continue
+        elif week and not (today - datetime.timedelta(days=today.weekday()) <= entry_date <= today):
+            continue
+        elif month and not (entry_date.year == today.year and entry_date.month == today.month):
+            continue
+        elif date_range:
+            try:
+                start = datetime.datetime.strptime(date_range[0], "%Y-%m-%d").date()
+                end = datetime.datetime.strptime(date_range[1], "%Y-%m-%d").date()
+                if not (start <= entry_date <= end):
+                    continue
+            except ValueError:
+                print("⚠️ Invalid date range format. Use YYYY-MM-DD.")
+                input("Press Enter to return...")
+                return
+
+        filtered.append(row)
+
+    if not filtered:
+        print("⚠️ No matching entries.")
     else:
-        for i, row in enumerate(entries, start=1):
+        for i, row in enumerate(filtered, start=1):
             print(f"{i}. {row['Date']} | {row['Project']} | {row['Hours']}h")
             print(f"   {row['Description']}\n")
 
@@ -420,14 +448,22 @@ def timer():
         launch_timer("Default")
 
 @cli.command()
-def summary():
+@click.option('--day', is_flag=True, help="Show today's summary")
+@click.option('--week', is_flag=True, help="Show summary for this week")
+@click.option('--month', is_flag=True, help="Show summary for this month")
+@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="Custom date range (YYYY-MM-DD YYYY-MM-DD)")
+def summary(day, week, month, range):
     """Show project summary"""
-    show_summary()
+    show_summary(day=day, week=week, month=month, date_range=range)
 
 @cli.command()
-def view():
-    """View all entries"""
-    view_entries()
+@click.option('--day', is_flag=True, help="View today's entries")
+@click.option('--week', is_flag=True, help="View entries from this week")
+@click.option('--month', is_flag=True, help="View entries from this month")
+@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="View entries in date range (YYYY-MM-DD YYYY-MM-DD)")
+def view(day, week, month, range):
+    """View all or filtered entries"""
+    view_entries(day=day, week=week, month=month, date_range=range)
 
 @cli.command()
 def edit():
