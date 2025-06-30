@@ -295,7 +295,6 @@ def edit_entry():
         writer.writerows(entries)
 
     print("✅ Entry updated successfully.")
-    input("Press Enter to return to main menu...")
     return
 
 
