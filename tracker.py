@@ -447,12 +447,12 @@ def timer():
 
 @cli.command()
 @click.option('--day', is_flag=True, help="Show today's summary")
-@click.option('--week', is_flag=True, help="Show summary for this week")
-@click.option('--month', is_flag=True, help="Show summary for this month")
-@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="Custom date range (YYYY-MM-DD YYYY-MM-DD)")
-@click.option('--project', is_flag=True, help="Filter by project")
+@click.option('--week', is_flag=True, help="Show this week's summary")
+@click.option('--month', is_flag=True, help="Show this month's summary")
+@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="Show summary for custom date range (YYYY-MM-DD YYYY-MM-DD)")
+@click.option('--project', is_flag=True, help="Filter by selected project")
 def summary(day, week, month, range, project):
-    """Show project summary"""
+    """Show summary of hours by project with optional filters."""
     selected_project = None
     if project:
         selected_project = select_project(get_projects())
@@ -460,12 +460,12 @@ def summary(day, week, month, range, project):
 
 @cli.command()
 @click.option('--day', is_flag=True, help="View today's entries")
-@click.option('--week', is_flag=True, help="View entries from this week")
-@click.option('--month', is_flag=True, help="View entries from this month")
-@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="View entries in date range (YYYY-MM-DD YYYY-MM-DD)")
-@click.option('--project', is_flag=True, help="Filter by project")
+@click.option('--week', is_flag=True, help="View this week's entries")
+@click.option('--month', is_flag=True, help="View this month's entries")
+@click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="View entries for custom date range (YYYY-MM-DD YYYY-MM-DD)")
+@click.option('--project', is_flag=True, help="Filter by selected project")
 def view(day, week, month, range, project):
-    """View all or filtered entries"""
+    """View logged entries with optional filters."""
     selected_project = None
     if project:
         selected_project = select_project(get_projects())
