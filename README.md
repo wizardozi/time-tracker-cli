@@ -23,13 +23,18 @@ git clone https://github.com/YOUR_USERNAME/time-tracker-cli.git
 cd time-tracker-cli
 ```
 
-### 2. Create a virtual environment and install dependencies
+### 2. Create and activate a virtual environment
 
-This app uses rumps, InquirerPy, and pyobjc. Install them globally for your user:
+This app uses `rumps`, `InquirerPy`, and `pyobjc`, all tracked in `requirements.txt`.
+Create a virtual environment in the project folder and install dependencies:
 
 ```bash
-pip3 install --user rumps InquirerPy pyobjc
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
+
+> Ensure `requirements.txt` is present. You can regenerate it with `pip freeze > requirements.txt` if needed.
 
 ### 3. Make the script executable and link it globally
 
@@ -40,7 +45,7 @@ ln -s $(pwd)/tracker.py ~/bin/tracker
 
 ### 4. Add ~/bin to your system $PATH (if not already)
 
-In your shell config (~/.zshrc, ~/.bashrc, or ~/.bash_profile), add:
+In your shell config (`~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`), add:
 
 ```bash
 export PATH="$HOME/bin:$PATH"

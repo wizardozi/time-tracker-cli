@@ -5,6 +5,7 @@ __pycache__/
 
 # Ignore personal logs
 work_log.csv
+notes.txt
 
 # macOS system files
 .DS_Store
