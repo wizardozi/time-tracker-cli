@@ -351,7 +351,7 @@ def delete_entry():
     print("✅ Entry deleted successfully.")
     input("Press Enter to return to main menu...")
 
-def get_projects_by_date(day=False, week=False, month=False, date_range=None, project=None):
+def get_projects_by_date(day=False, week=False, month=False, date_range=None, project=None, category=None):
     with open(LOG_FILE, 'r') as file:
         reader = csv.DictReader(file)
         entries = list(reader)
@@ -384,25 +384,27 @@ def get_projects_by_date(day=False, week=False, month=False, date_range=None, pr
                 return
         if project and row['Project'] != project:
             continue
+        if category and row['Category'] != category:
+            continue
 
         filtered.append(row)
     return filtered
 
-def view_entries(day=False, week=False, month=False, date_range=None, project=None):
+def view_entries(day=False, week=False, month=False, date_range=None, project=None, category=None):
     clear_terminal()
-    filtered = get_projects_by_date(day, week, month, date_range, project)
+    filtered = get_projects_by_date(day, week, month, date_range, project, category)
     if not filtered:
         print("⚠️ No matching entries.")
     else:
         for i, row in enumerate(filtered, start=1):
-            print(f"{i}. {row['Date']} | {row['Project']} | {row['Hours']}h")
+            print(f"{i}. {row['Date']} | {row['Project']} | {row['Category']} | {row['Hours']}h")
             print(f"   {row['Description']}\n")
 
 
-def show_summary(day=False, week=False, month=False, date_range=None, project=None):
+def show_summary(day=False, week=False, month=False, date_range=None, project=None, category=False):
     clear_terminal()
     summary_dict = {}
-    filtered = get_projects_by_date(day, week, month, date_range, project)
+    filtered = get_projects_by_date(day, week, month, date_range, project, category)
     if not filtered:
         print("⚠️ No matching entries.")
     else:
@@ -411,16 +413,29 @@ def show_summary(day=False, week=False, month=False, date_range=None, project=No
                 hours = float(row.get("Hours", 0))
             except ValueError:
                 continue  # skip invalid rows
-            project = row.get("Project")
-            if project in summary_dict:
-                summary_dict[project] += hours
+            key = row.get("Project")
+            if key in summary_dict:
+                summary_dict[key] += hours
             else:
-                summary_dict[project] = hours
+                summary_dict[key] = hours
 
-    print("📊 Work Summary by Project:")
+    date_label = ""
+    today = datetime.date.today()
+
+    if day:
+        date_label = f"(Today: {today.strftime('%Y-%m-%d')})"
+    elif week:
+        start = today - datetime.timedelta(days=today.weekday())
+        date_label = f"(Week: {start.strftime('%Y-%m-%d')} to {today.strftime('%Y-%m-%d')})"
+    elif month:
+        date_label = f"(Month: {today.strftime('%B %Y')})"
+    elif date_range:
+        date_label = f"(Range: {date_range[0]} to {date_range[1]})"
+
+    print(f"📊 Work Summary: Filters {date_label} (Project: {project}) (Category: {category})")
     print("---------------------------")
-    for project, total_hours in summary_dict.items():
-        print(f"{project}: {total_hours:.2f} hours")
+    for key, total_hours in summary_dict.items():
+        print(f"{key}: {total_hours:.2f} hours")
 
 # --- Click CLI group and subcommands ---
 
@@ -449,26 +464,35 @@ def timer():
 @click.option('--week', is_flag=True, help="Show this week's summary")
 @click.option('--month', is_flag=True, help="Show this month's summary")
 @click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="Show summary for custom date range (YYYY-MM-DD YYYY-MM-DD)")
-@click.option('--project', is_flag=True, help="Filter by selected project")
-def summary(day, week, month, range, project):
-    """Show summary of hours by project with optional filters."""
+@click.option('--project', '--proj', 'project', is_flag=True, help="Filter by selected project")
+@click.option('--category', '--cat', 'category', is_flag=True, help="Summarize by selected category")
+def summary(day, week, month, range, project, category):
+    """Show summary of hours by project or category with optional filters."""
     selected_project = None
     if project:
         selected_project = select_project(get_projects())
-    show_summary(day=day, week=week, month=month, date_range=range, project=selected_project)
+    selected_category = None
+    if category:
+        selected_category = get_category()
+    show_summary(day=day, week=week, month=month, date_range=range, project=selected_project, category=selected_category)
 
 @cli.command()
 @click.option('--day', is_flag=True, help="View today's entries")
 @click.option('--week', is_flag=True, help="View this week's entries")
 @click.option('--month', is_flag=True, help="View this month's entries")
 @click.option('--range', nargs=2, type=str, metavar='<START> <END>', help="View entries for custom date range (YYYY-MM-DD YYYY-MM-DD)")
-@click.option('--project', is_flag=True, help="Filter by selected project")
-def view(day, week, month, range, project):
+@click.option('--project', '--proj', 'project', is_flag=True, help="Filter by selected project")
+@click.option('--category', '--cat', 'category', is_flag=True, help="Filter by selected category")
+def view(day, week, month, range, project, category):
     """View logged entries with optional filters."""
     selected_project = None
     if project:
         selected_project = select_project(get_projects())
-    view_entries(day=day, week=week, month=month, date_range=range, project=selected_project)
+
+    selected_category = None
+    if category:
+        selected_category = get_category()
+    view_entries(day=day, week=week, month=month, date_range=range, project=selected_project, category=selected_category)
 
 @cli.command()
 def edit():

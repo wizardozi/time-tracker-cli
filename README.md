@@ -10,6 +10,8 @@ A lightweight command-line tool for logging and summarizing work hours across pe
 - Inquirer-powered interactive CLI (arrow keys, cancel with `q`)
 - Edit existing entries
 - View summaries or full log history
+- Filter log views and summaries by day, week, month, date range, or project
+- Cleaner CLI help with contextual usage information
 - Minimal, readable terminal UI
 
 ---
@@ -79,11 +81,7 @@ tracker
 
 ### Future Ideas (Optional Extensions)
 
-- `--help` flag with CLI argument support
-- Weekly/monthly summary views
 - Tagging and search
 - CSV export filters or markdown reports
 
 ---
-
-Let me know if you want to add support for a `--help` flag or command-line arguments down the line.
